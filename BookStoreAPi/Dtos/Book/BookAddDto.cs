@@ -19,6 +19,9 @@ namespace BookStoreAPi.Dtos.Book
 
         public double Value { get; set; }
 
+        public IFormFile File { get; set; }
         public DateTime PublishDate { get; set; }
+
+
     }
 }

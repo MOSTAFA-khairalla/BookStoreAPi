@@ -15,13 +15,15 @@ namespace BookStore.API.Controllers
     public class BooksController : MainController
     {
         private readonly IBookService _bookService;
+        private readonly IWebHostEnvironment _environment;
         private readonly IMapper _mapper;
 
         public BooksController(IMapper mapper,
-                                IBookService bookService)
+                                IBookService bookService , IWebHostEnvironment environment)
         {
             _mapper = mapper;
             _bookService = bookService;
+          _environment = environment;
         }
 
         [HttpGet]
@@ -61,16 +63,35 @@ namespace BookStore.API.Controllers
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> Add(BookAddDto bookDto)
+        public async Task<IActionResult> Add([FromForm]BookAddDto bookDto)
         {
             if (!ModelState.IsValid) return BadRequest();
+      
 
-            var book = _mapper.Map<Book>(bookDto);
-            var bookResult = await _bookService.Add(book);
+            try
+            {
+                string xc = bookDto.File.FileName;
+                string path = Path.Combine(Directory.GetCurrentDirectory(), "img",xc );
+                using (Stream stream = new FileStream(path, FileMode.Create))
+                {
+                    bookDto.File.CopyTo(stream);
+                }
+                var book = _mapper.Map<Book>(bookDto);
+                book.ImageUrl = bookDto.File.FileName;
+                var bookResult = await _bookService.Add(book);
 
-            if (bookResult == null) return BadRequest();
+                if (bookResult == null) return BadRequest();
+                return Ok(_mapper.Map<BookResultDto>(bookResult));
 
-            return Ok(_mapper.Map<BookResultDto>(bookResult));
+
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+       
+
         }
 
         [HttpPut("{id:int}")]

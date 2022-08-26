@@ -22,4 +22,8 @@
     <ProjectReference Include="..\BookStore.infstructure\BookStore.infstructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="img\" />
+  </ItemGroup>
+
 </Project>
